@@ -12,5 +12,10 @@ namespace StudentAdminPortal.API.Repository
         public async Task<List<Student>> GetStudents() { 
             return await _context.Students.Include(nameof(Gender)).Include(nameof(Address)).ToListAsync();
         }
+
+        public async Task<Student> GetStudentById(Guid studentId)
+        {
+            return await _context.Students.Include(nameof(Gender)).Include(nameof(Address)).Where(x => x.id == studentId).FirstOrDefaultAsync();
+        }
     }
 }
