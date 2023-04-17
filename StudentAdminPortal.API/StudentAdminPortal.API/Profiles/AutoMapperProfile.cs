@@ -30,6 +30,13 @@ namespace StudentAdminPortal.API.Profiles
                 .ForMember(dest => dest.Lastname, opt => opt.MapFrom(src => src.StudentLastname))
                 .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DOB))
                 .ForMember(dest => dest.GenderId, opt => opt.MapFrom(src => src.GenderId)).ReverseMap();
+
+            CreateMap<DomainModels.AddStudentRequest, Student>()
+                .AfterMap<AddStudentRequestAfterMap>()
+                .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.StudentFirstName))
+                .ForMember(dest => dest.Lastname, opt => opt.MapFrom(src => src.StudentLastname))
+                .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DOB))
+                .ForMember(dest => dest.GenderId, opt => opt.MapFrom(src => src.GenderId)).ReverseMap();
         }
     }
 }

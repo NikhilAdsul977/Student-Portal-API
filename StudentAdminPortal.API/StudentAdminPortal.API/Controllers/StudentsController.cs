@@ -5,6 +5,7 @@ using DataModels = StudentAdminPortal.API.DataModels;
 
 using StudentAdminPortal.API.Repository;
 using System;
+using Azure.Core;
 
 namespace StudentAdminPortal.API.Controllers
 {
@@ -35,7 +36,7 @@ namespace StudentAdminPortal.API.Controllers
 
 
         [HttpGet]
-        [Route("GetStudentById/{studentId:guid}")]
+        [Route("GetStudentById/{studentId:guid}"), ActionName("GetStudentById")]
         public async Task<IActionResult> GetStudentById([FromRoute]Guid studentId)
         {
             var students = await _studentRepository.GetStudentById(studentId);
@@ -78,6 +79,14 @@ namespace StudentAdminPortal.API.Controllers
                 }
             }
             return NotFound();
+        }
+
+        [HttpPost]
+        [Route("AddStudent")]
+        public async Task<IActionResult> AddStudent([FromBody] AddStudentRequest request)
+        {
+            var students = await _studentRepository.AddStudent(_mapper.Map<DataModels.Student>(request));
+            return CreatedAtAction(nameof(GetStudentById), new {studentId = students.id}, _mapper.Map<Student>(students));
         }
     }
 }
