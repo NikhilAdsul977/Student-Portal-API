@@ -96,18 +96,32 @@ namespace StudentAdminPortal.API.Controllers
         [Route("UploadProfile/{studentId:guid}")]
         public async Task<IActionResult> UploadProfile([FromRoute] Guid studentId, IFormFile profileImage)
         {
-            if (await _studentRepository.exists(studentId))
+            var validExtension = new List<string>
             {
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
+                ".jpeg",".jpg",".png",".gif"
+            };
+            if (profileImage != null && profileImage.Length > 0)
+            {
+                var extension = Path.GetExtension(profileImage.FileName);
+                if (validExtension.Contains(extension)) {
+                    if (await _studentRepository.exists(studentId))
+                    {
+                        var fileName = Guid.NewGuid().ToString() + extension;
 
-                var fileImageUrl = await _imageRepository.Upload(profileImage, fileName);
+                        var fileImageUrl = await _imageRepository.Upload(profileImage, fileName);
 
-                if(await _studentRepository.UpdateProfile(studentId, fileImageUrl))
-                {
-                    return Ok(fileImageUrl);
+                        if (await _studentRepository.UpdateProfile(studentId, fileImageUrl))
+                        {
+                            return Ok(fileImageUrl);
+                        }
+
+                        return StatusCode(StatusCodes.Status500InternalServerError, "Error Uploading Image");
+                    }
                 }
-
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error Uploading Image");
+                else
+                {
+                    return BadRequest("Invalid image extension. Please upload jpeg, jpg, png, gif files.");
+                }
             }
             return NotFound();
         }
