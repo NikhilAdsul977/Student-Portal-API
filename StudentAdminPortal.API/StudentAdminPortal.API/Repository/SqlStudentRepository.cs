@@ -15,7 +15,9 @@ namespace StudentAdminPortal.API.Repository
 
         public async Task<Student> GetStudentById(Guid studentId)
         {
-            return await _context.Students.Include(nameof(Gender)).Include(nameof(Address)).Where(x => x.id == studentId).FirstOrDefaultAsync();
+            return await _context.Students
+                .Include(nameof(Gender)).Include(nameof(Address))
+                .Where(x => x.id == studentId).FirstOrDefaultAsync();
         }
 
         public async Task<List<Gender>> GetGenders()
@@ -49,6 +51,22 @@ namespace StudentAdminPortal.API.Repository
                 return student;
             }
             return null;
+        }
+
+        public async Task<bool> DeleteStudent(Guid studentId)
+        {
+            var student = await GetStudentById(studentId);
+
+            if (student != null)
+            {
+                _context.Students.Remove(student);
+                int result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
