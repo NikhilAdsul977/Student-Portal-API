@@ -16,5 +16,7 @@ namespace StudentAdminPortal.API.Repository
         Task<bool> DeleteStudent(Guid studentId);
 
         Task<Student> AddStudent(Student request);
+
+        Task<bool> UpdateProfile(Guid studentId, string ProfileImageUrl);
     }
 }

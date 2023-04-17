@@ -14,11 +14,14 @@ namespace StudentAdminPortal.API.Controllers
     public class StudentsController : Controller
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
 
-        public StudentsController(IStudentRepository studentRepository, IMapper mapper) {
+        public StudentsController(IStudentRepository studentRepository, IMapper mapper, IImageRepository imageRepository)
+        {
             this._studentRepository = studentRepository;
             this._mapper = mapper;
+            _imageRepository = imageRepository;
         }
 
         [HttpGet]
@@ -87,6 +90,26 @@ namespace StudentAdminPortal.API.Controllers
         {
             var students = await _studentRepository.AddStudent(_mapper.Map<DataModels.Student>(request));
             return CreatedAtAction(nameof(GetStudentById), new {studentId = students.id}, _mapper.Map<Student>(students));
+        }
+
+        [HttpPost]
+        [Route("UploadProfile/{studentId:guid}")]
+        public async Task<IActionResult> UploadProfile([FromRoute] Guid studentId, IFormFile profileImage)
+        {
+            if (await _studentRepository.exists(studentId))
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(profileImage.FileName);
+
+                var fileImageUrl = await _imageRepository.Upload(profileImage, fileName);
+
+                if(await _studentRepository.UpdateProfile(studentId, fileImageUrl))
+                {
+                    return Ok(fileImageUrl);
+                }
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error Uploading Image");
+            }
+            return NotFound();
         }
     }
 }
